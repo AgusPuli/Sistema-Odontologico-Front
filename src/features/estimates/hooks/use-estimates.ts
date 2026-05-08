@@ -61,3 +61,28 @@ export function useChangeEstimateStatus() {
     onError: (e: ApiError) => toast.error(e.message || 'Error'),
   })
 }
+
+export function useUpdateEstimate(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateEstimateRequest) => estimatesApi.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all })
+      qc.invalidateQueries({ queryKey: KEYS.detail(id) })
+      toast.success('Presupuesto actualizado')
+    },
+    onError: (e: ApiError) => toast.error(e.message || 'Error al actualizar'),
+  })
+}
+
+export function useDeleteEstimate() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => estimatesApi.delete(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all })
+      toast.success('Presupuesto eliminado')
+    },
+    onError: (e: ApiError) => toast.error(e.message || 'No se pudo eliminar'),
+  })
+}

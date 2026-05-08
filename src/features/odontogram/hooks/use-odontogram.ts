@@ -75,6 +75,19 @@ export function useCreateOdontogram() {
   })
 }
 
+/**
+ * Idempotent: opens the patient's existing chart or creates one. Use this when
+ * you don't want to risk archiving an existing odontogram by mistake.
+ */
+export function useGetOrCreateOdontogram() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (data: CreateOdontogramRequest) => odontogramApi.getOrCreateCurrent(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['odontogram'] }),
+    onError: (e: ApiError) => toast.error(e.message || 'Error al abrir el odontograma'),
+  })
+}
+
 export function useUpdateTooth(odontogramId: string) {
   const qc = useQueryClient()
   return useMutation({

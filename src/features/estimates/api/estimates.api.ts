@@ -23,10 +23,20 @@ export const estimatesApi = {
     return r.data
   },
 
+  update: async (id: string, data: CreateEstimateRequest) => {
+    const r = await api.put<ApiResponse<Estimate>>(`/estimates/${id}`, data)
+    return r.data
+  },
+
   changeStatus: async (id: string, status: EstimateStatus) => {
     const r = await api.patch<ApiResponse<Estimate>>(`/estimates/${id}/status`, null, {
       params: { status },
     })
+    return r.data
+  },
+
+  delete: async (id: string) => {
+    const r = await api.delete<ApiResponse<void>>(`/estimates/${id}`)
     return r.data
   },
 }

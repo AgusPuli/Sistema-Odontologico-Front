@@ -59,4 +59,9 @@ export const appointmentsApi = {
     })
     return r.data
   },
+
+  delete: async (id: string) => {
+    const r = await api.delete<ApiResponse<void>>(`/appointments/${id}`)
+    return r.data
+  },
 }

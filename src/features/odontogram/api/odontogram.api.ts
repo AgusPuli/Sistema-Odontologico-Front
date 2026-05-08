@@ -17,6 +17,15 @@ export const odontogramApi = {
     return r.data
   },
 
+  /**
+   * Idempotent variant: returns the patient's current odontogram if one exists,
+   * otherwise creates a new one. Safe to call on every chart load.
+   */
+  getOrCreateCurrent: async (data: CreateOdontogramRequest) => {
+    const r = await api.post<ApiResponse<Odontogram>>('/odontograms/get-or-create-current', data)
+    return r.data
+  },
+
   getById: async (id: string) => {
     const r = await api.get<ApiResponse<Odontogram>>(`/odontograms/${id}`)
     return r.data

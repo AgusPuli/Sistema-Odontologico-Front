@@ -1,10 +1,13 @@
 'use client'
-import { use } from 'react'
+import { use, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Stethoscope } from 'lucide-react'
+import { ArrowLeft, Stethoscope, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { InfoField } from '@/components/shared/info-field'
+import { LoadingState } from '@/components/shared/loading-state'
+import { ConfirmDialog } from '@/components/shared/confirm-dialog'
 import { calculateAge, formatDate } from '@/lib/utils'
 import { GENDER_LABEL } from '@/lib/constants'
 import { PatientForm } from '@/features/patients/components/patient-form'
@@ -19,10 +22,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
   const { id } = use(params)
   const { data: patient, isLoading } = usePatient(id)
   const { mutate: update, isPending: isUpdating } = useUpdatePatient(id)
-  const { mutate: deactivate } = useDeactivatePatient()
+  const { mutate: deactivate, isPending: isDeactivating } = useDeactivatePatient()
   const { mutate: activate } = useActivatePatient()
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
-  if (isLoading) return <p className="text-muted-foreground">Cargando...</p>
+  if (isLoading) return <LoadingState />
   if (!patient) return <p className="text-muted-foreground">Paciente no encontrado</p>
 
   const age = calculateAge(patient.birthDate)
@@ -53,24 +57,18 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             )}
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2 text-sm">
-          <Info label="DNI" value={patient.documentNumber} />
-          <Info label="Edad" value={age !== null ? `${age} años` : null} />
-          <Info label="Fecha nacimiento" value={formatDate(patient.birthDate)} />
-          <Info label="Género" value={patient.gender ? GENDER_LABEL[patient.gender] : null} />
-          <Info label="Teléfono" value={patient.phone} />
-          <Info label="Email" value={patient.email} />
-          <Info label="Obra social" value={patient.healthInsurance} />
-          <Info label="N° afiliado" value={patient.insuranceNumber} />
-          <div className="sm:col-span-2">
-            <Info label="Dirección" value={patient.address} />
-          </div>
-          <div className="sm:col-span-2">
-            <Info label="Antecedentes médicos" value={patient.medicalNotes} />
-          </div>
-          <div className="sm:col-span-2">
-            <Info label="Alergias" value={patient.allergies} />
-          </div>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          <InfoField label="DNI" value={patient.documentNumber} />
+          <InfoField label="Edad" value={age !== null ? `${age} años` : null} />
+          <InfoField label="Fecha nacimiento" value={formatDate(patient.birthDate)} />
+          <InfoField label="Género" value={patient.gender ? GENDER_LABEL[patient.gender] : null} />
+          <InfoField label="Teléfono" value={patient.phone} />
+          <InfoField label="Email" value={patient.email} />
+          <InfoField label="Obra social" value={patient.healthInsurance} />
+          <InfoField label="N° afiliado" value={patient.insuranceNumber} />
+          <InfoField label="Dirección" value={patient.address} className="sm:col-span-2" />
+          <InfoField label="Antecedentes médicos" value={patient.medicalNotes} className="sm:col-span-2" />
+          <InfoField label="Alergias" value={patient.allergies} className="sm:col-span-2" />
         </CardContent>
       </Card>
 
@@ -85,10 +83,10 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             submitLabel="Guardar cambios"
             onSubmit={(values) => update(values)}
           />
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end gap-2">
             {patient.active ? (
-              <Button variant="outline" onClick={() => deactivate(patient.id)}>
-                Desactivar paciente
+              <Button variant="outline" onClick={() => setConfirmOpen(true)}>
+                <Trash2 className="h-4 w-4" /> Desactivar paciente
               </Button>
             ) : (
               <Button variant="outline" onClick={() => activate(patient.id)}>
@@ -98,15 +96,21 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </CardContent>
       </Card>
-    </div>
-  )
-}
 
-function Info({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div>
-      <p className="text-xs uppercase text-muted-foreground">{label}</p>
-      <p>{value || '-'}</p>
+      <ConfirmDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title="¿Desactivar paciente?"
+        description={`${patient.fullName} dejará de aparecer en las búsquedas activas. Podés reactivarlo más tarde desde esta misma pantalla.`}
+        variant="destructive"
+        confirmLabel="Desactivar"
+        loading={isDeactivating}
+        onConfirm={() =>
+          deactivate(patient.id, {
+            onSuccess: () => setConfirmOpen(false),
+          })
+        }
+      />
     </div>
   )
 }

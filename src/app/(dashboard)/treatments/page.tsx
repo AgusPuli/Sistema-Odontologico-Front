@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { Loader2, Sparkles } from 'lucide-react'
+import { Loader2, Sparkles, Stethoscope } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -13,8 +13,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { PageHeader } from '@/components/shared/page-header'
+import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingState } from '@/components/shared/loading-state'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { FormField } from '@/components/shared/form-field'
 import { DENTAL_SPECIALTIES, DENTAL_SPECIALTY_LABEL } from '@/lib/constants'
 import { formatMoney } from '@/lib/utils'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import {
   useSeedDefaultTreatments,
   useTreatmentsSearch,
@@ -25,54 +31,57 @@ export default function TreatmentsPage() {
   const [search, setSearch] = useState('')
   const [specialty, setSpecialty] = useState<DentalSpecialty | undefined>()
   const [page, setPage] = useState(0)
-  const { data, isLoading } = useTreatmentsSearch({ search, specialty, page })
+  const debounced = useDebouncedValue(search, 300)
+  const { data, isLoading } = useTreatmentsSearch({ search: debounced, specialty, page })
   const seed = useSeedDefaultTreatments()
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Catálogo de tratamientos</h1>
-          <p className="text-muted-foreground">Procedimientos disponibles agrupados por especialidad</p>
-        </div>
-        <Button onClick={() => seed.mutate()} disabled={seed.isPending} variant="outline">
-          {seed.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-          Cargar catálogo por defecto
-        </Button>
-      </div>
+      <PageHeader
+        title="Catálogo de tratamientos"
+        description="Procedimientos disponibles agrupados por especialidad"
+        actions={
+          <Button onClick={() => seed.mutate()} disabled={seed.isPending} variant="outline">
+            {seed.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            Cargar catálogo por defecto
+          </Button>
+        }
+      />
 
       <Card>
-        <CardHeader>
-          <CardTitle>Filtros</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          <Input
-            placeholder="Buscar por código o nombre..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              setPage(0)
-            }}
-          />
-          <Select
-            value={specialty ?? 'all'}
-            onValueChange={(v) => {
-              setSpecialty(v === 'all' ? undefined : (v as DentalSpecialty))
-              setPage(0)
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Todas las especialidades" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todas las especialidades</SelectItem>
-              {DENTAL_SPECIALTIES.map((s) => (
-                <SelectItem key={s} value={s}>
-                  {DENTAL_SPECIALTY_LABEL[s]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <CardContent className="grid gap-3 p-4 sm:grid-cols-2">
+          <FormField id="search" label="Buscar">
+            <Input
+              id="search"
+              placeholder="Código o nombre..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                setPage(0)
+              }}
+            />
+          </FormField>
+          <FormField id="specialty" label="Especialidad">
+            <Select
+              value={specialty ?? 'all'}
+              onValueChange={(v) => {
+                setSpecialty(v === 'all' ? undefined : (v as DentalSpecialty))
+                setPage(0)
+              }}
+            >
+              <SelectTrigger id="specialty">
+                <SelectValue placeholder="Todas las especialidades" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todas las especialidades</SelectItem>
+                {DENTAL_SPECIALTIES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {DENTAL_SPECIALTY_LABEL[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
         </CardContent>
       </Card>
 
@@ -92,15 +101,19 @@ export default function TreatmentsPage() {
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                    Cargando...
+                  <TableCell colSpan={6}>
+                    <LoadingState variant="row" />
                   </TableCell>
                 </TableRow>
               )}
               {!isLoading && data?.content.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                    Sin resultados. Probá cargar el catálogo por defecto.
+                  <TableCell colSpan={6}>
+                    <EmptyState
+                      variant="row"
+                      icon={Stethoscope}
+                      title="Sin resultados. Probá cargar el catálogo por defecto."
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -125,20 +138,17 @@ export default function TreatmentsPage() {
             </TableBody>
           </Table>
 
-          {data && data.totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Página {data.number + 1} de {data.totalPages} — {data.totalElements} tratamientos
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={data.first} onClick={() => setPage((p) => p - 1)}>
-                  Anterior
-                </Button>
-                <Button variant="outline" size="sm" disabled={data.last} onClick={() => setPage((p) => p + 1)}>
-                  Siguiente
-                </Button>
-              </div>
-            </div>
+          {data && (
+            <DataTablePagination
+              pageNumber={data.number}
+              totalPages={data.totalPages}
+              totalElements={data.totalElements}
+              first={data.first}
+              last={data.last}
+              itemLabel="tratamientos"
+              onPrev={() => setPage((p) => Math.max(0, p - 1))}
+              onNext={() => setPage((p) => p + 1)}
+            />
           )}
         </CardContent>
       </Card>

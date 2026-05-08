@@ -1,19 +1,23 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Search, Users } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { calculateAge, formatDate } from '@/lib/utils'
+import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingState } from '@/components/shared/loading-state'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
+import { calculateAge } from '@/lib/utils'
+import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import { usePatientsList } from '../hooks/use-patients'
 
 export function PatientList() {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(0)
-  const { data, isLoading } = usePatientsList({ search, page })
+  const debouncedSearch = useDebouncedValue(search, 300)
+  const { data, isLoading } = usePatientsList({ search: debouncedSearch, page })
 
   return (
     <Card className="p-4">
@@ -46,15 +50,19 @@ export function PatientList() {
         <TableBody>
           {isLoading && (
             <TableRow>
-              <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                Cargando...
+              <TableCell colSpan={6}>
+                <LoadingState variant="row" />
               </TableCell>
             </TableRow>
           )}
           {!isLoading && data?.content.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                No se encontraron pacientes
+              <TableCell colSpan={6}>
+                <EmptyState
+                  variant="row"
+                  icon={Users}
+                  title="No se encontraron pacientes"
+                />
               </TableCell>
             </TableRow>
           )}
@@ -85,35 +93,18 @@ export function PatientList() {
         </TableBody>
       </Table>
 
-      {data && data.totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            Página {data.number + 1} de {data.totalPages} — {data.totalElements} pacientes
-          </span>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={data.first}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={data.last}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
+      {data && (
+        <DataTablePagination
+          pageNumber={data.number}
+          totalPages={data.totalPages}
+          totalElements={data.totalElements}
+          first={data.first}
+          last={data.last}
+          itemLabel="pacientes"
+          onPrev={() => setPage((p) => Math.max(0, p - 1))}
+          onNext={() => setPage((p) => p + 1)}
+        />
       )}
-
-      <p className="mt-3 text-xs text-muted-foreground">
-        Última actualización: {formatDate(new Date(), true)}
-      </p>
     </Card>
   )
 }

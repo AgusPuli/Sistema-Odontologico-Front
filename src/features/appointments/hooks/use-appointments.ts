@@ -78,3 +78,15 @@ export function useRescheduleAppointment() {
     onError: (e: ApiError) => toast.error(e.message || 'Error'),
   })
 }
+
+export function useDeleteAppointment() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => appointmentsApi.delete(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: KEYS.all })
+      toast.success('Turno eliminado')
+    },
+    onError: (e: ApiError) => toast.error(e.message || 'No se pudo eliminar'),
+  })
+}

@@ -1,11 +1,12 @@
 'use client'
+import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { FormField } from '@/components/shared/form-field'
 import { LoginFormValues, loginSchema } from '../schemas/auth.schemas'
 import { useLogin } from '../hooks/use-auth'
 
@@ -29,8 +30,7 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit((data) => login(data))} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+          <FormField id="email" label="Email" error={errors.email?.message}>
             <Input
               id="email"
               type="email"
@@ -38,24 +38,25 @@ export function LoginForm() {
               placeholder="dentista@clinica.com"
               {...register('email')}
             />
-            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+          </FormField>
+          <FormField id="password" label="Contraseña" error={errors.password?.message}>
             <Input
               id="password"
               type="password"
               autoComplete="current-password"
               {...register('password')}
             />
-            {errors.password && (
-              <p className="text-xs text-destructive">{errors.password.message}</p>
-            )}
-          </div>
+          </FormField>
           <Button type="submit" className="w-full" disabled={isPending}>
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             Iniciar sesión
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            ¿Primera vez?{' '}
+            <Link href="/setup" className="text-primary hover:underline">
+              Inicializar sistema
+            </Link>
+          </p>
         </form>
       </CardContent>
     </Card>

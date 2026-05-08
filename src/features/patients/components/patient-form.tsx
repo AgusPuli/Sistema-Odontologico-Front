@@ -4,10 +4,17 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { FormField } from '@/components/shared/form-field'
 import { GENDER_LABEL } from '@/lib/constants'
+import { cleanEmptyStrings } from '@/lib/form-utils'
 import { PatientFormValues, patientSchema } from '../schemas/patient.schemas'
 import { CreatePatientRequest, Patient } from '../types/patient.types'
 
@@ -36,34 +43,35 @@ export function PatientForm({ initialValues, onSubmit, isSubmitting, submitLabel
       allergies: initialValues?.allergies ?? '',
     },
   })
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = form
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = form
 
   return (
     <form
       onSubmit={handleSubmit((values) => {
-        // Strip empty strings so optional fields don't fail backend validation.
-        // The schema accepts '' for ergonomics; the API contract does not.
-        const clean = Object.fromEntries(
-          Object.entries(values).map(([k, v]) => [k, v === '' ? undefined : v])
-        ) as unknown as CreatePatientRequest
-        onSubmit(clean)
+        onSubmit(cleanEmptyStrings(values) as CreatePatientRequest)
       })}
       className="space-y-4"
     >
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field id="firstName" label="Nombre*" error={errors.firstName?.message}>
+        <FormField id="firstName" label="Nombre" required error={errors.firstName?.message}>
           <Input id="firstName" {...register('firstName')} />
-        </Field>
-        <Field id="lastName" label="Apellido*" error={errors.lastName?.message}>
+        </FormField>
+        <FormField id="lastName" label="Apellido" required error={errors.lastName?.message}>
           <Input id="lastName" {...register('lastName')} />
-        </Field>
-        <Field id="documentNumber" label="DNI / Documento" error={errors.documentNumber?.message}>
+        </FormField>
+        <FormField id="documentNumber" label="DNI / Documento" error={errors.documentNumber?.message}>
           <Input id="documentNumber" {...register('documentNumber')} />
-        </Field>
-        <Field id="birthDate" label="Fecha de nacimiento" error={errors.birthDate?.message}>
+        </FormField>
+        <FormField id="birthDate" label="Fecha de nacimiento" error={errors.birthDate?.message}>
           <Input id="birthDate" type="date" {...register('birthDate')} />
-        </Field>
-        <Field id="gender" label="Género">
+        </FormField>
+        <FormField id="gender" label="Género">
           <Select
             value={watch('gender') || ''}
             onValueChange={(v) => setValue('gender', v as PatientFormValues['gender'])}
@@ -79,30 +87,30 @@ export function PatientForm({ initialValues, onSubmit, isSubmitting, submitLabel
               ))}
             </SelectContent>
           </Select>
-        </Field>
-        <Field id="phone" label="Teléfono">
+        </FormField>
+        <FormField id="phone" label="Teléfono">
           <Input id="phone" {...register('phone')} />
-        </Field>
-        <Field id="email" label="Email" error={errors.email?.message}>
+        </FormField>
+        <FormField id="email" label="Email" error={errors.email?.message}>
           <Input id="email" type="email" {...register('email')} />
-        </Field>
-        <Field id="address" label="Dirección">
+        </FormField>
+        <FormField id="address" label="Dirección">
           <Input id="address" {...register('address')} />
-        </Field>
-        <Field id="healthInsurance" label="Obra social / Seguro">
+        </FormField>
+        <FormField id="healthInsurance" label="Obra social / Seguro">
           <Input id="healthInsurance" {...register('healthInsurance')} />
-        </Field>
-        <Field id="insuranceNumber" label="N° de afiliado">
+        </FormField>
+        <FormField id="insuranceNumber" label="N° de afiliado">
           <Input id="insuranceNumber" {...register('insuranceNumber')} />
-        </Field>
+        </FormField>
       </div>
 
-      <Field id="medicalNotes" label="Antecedentes médicos">
+      <FormField id="medicalNotes" label="Antecedentes médicos">
         <Textarea id="medicalNotes" rows={3} {...register('medicalNotes')} />
-      </Field>
-      <Field id="allergies" label="Alergias">
+      </FormField>
+      <FormField id="allergies" label="Alergias">
         <Textarea id="allergies" rows={2} {...register('allergies')} />
-      </Field>
+      </FormField>
 
       <div className="flex justify-end">
         <Button type="submit" disabled={isSubmitting}>
@@ -111,25 +119,5 @@ export function PatientForm({ initialValues, onSubmit, isSubmitting, submitLabel
         </Button>
       </div>
     </form>
-  )
-}
-
-function Field({
-  id,
-  label,
-  children,
-  error,
-}: {
-  id: string
-  label: string
-  children: React.ReactNode
-  error?: string
-}) {
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {error && <p className="text-xs text-destructive">{error}</p>}
-    </div>
   )
 }

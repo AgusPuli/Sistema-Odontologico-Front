@@ -1,10 +1,15 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
+import { FileText, Plus } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { PageHeader } from '@/components/shared/page-header'
+import { EmptyState } from '@/components/shared/empty-state'
+import { LoadingState } from '@/components/shared/loading-state'
+import { DataTablePagination } from '@/components/shared/data-table-pagination'
 import { ESTIMATE_STATUS_LABEL } from '@/lib/constants'
 import { formatDate, formatMoney } from '@/lib/utils'
 import { useEstimatesList } from '@/features/estimates/hooks/use-estimates'
@@ -15,10 +20,17 @@ export default function EstimatesPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Presupuestos</h1>
-        <p className="text-muted-foreground">Listado de presupuestos emitidos</p>
-      </div>
+      <PageHeader
+        title="Presupuestos"
+        description="Listado de presupuestos emitidos"
+        actions={
+          <Button asChild>
+            <Link href="/estimates/new">
+              <Plus className="h-4 w-4" /> Nuevo presupuesto
+            </Link>
+          </Button>
+        }
+      />
 
       <Card>
         <CardContent className="p-4">
@@ -36,22 +48,26 @@ export default function EstimatesPage() {
             <TableBody>
               {isLoading && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                    Cargando...
+                  <TableCell colSpan={6}>
+                    <LoadingState variant="row" />
                   </TableCell>
                 </TableRow>
               )}
               {!isLoading && data?.content.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-muted-foreground">
-                    No hay presupuestos cargados
+                  <TableCell colSpan={6}>
+                    <EmptyState
+                      variant="row"
+                      icon={FileText}
+                      title="No hay presupuestos cargados"
+                    />
                   </TableCell>
                 </TableRow>
               )}
               {data?.content.map((e) => (
-                <TableRow key={e.id}>
+                <TableRow key={e.id} className="cursor-pointer">
                   <TableCell>
-                    <Link href={`/patients/${e.patientId}`} className="text-primary hover:underline">
+                    <Link href={`/estimates/${e.id}`} className="text-primary hover:underline">
                       {e.patientFullName ?? '-'}
                     </Link>
                   </TableCell>
@@ -67,20 +83,17 @@ export default function EstimatesPage() {
             </TableBody>
           </Table>
 
-          {data && data.totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Página {data.number + 1} de {data.totalPages} — {data.totalElements} presupuestos
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" disabled={data.first} onClick={() => setPage((p) => p - 1)}>
-                  Anterior
-                </Button>
-                <Button variant="outline" size="sm" disabled={data.last} onClick={() => setPage((p) => p + 1)}>
-                  Siguiente
-                </Button>
-              </div>
-            </div>
+          {data && (
+            <DataTablePagination
+              pageNumber={data.number}
+              totalPages={data.totalPages}
+              totalElements={data.totalElements}
+              first={data.first}
+              last={data.last}
+              itemLabel="presupuestos"
+              onPrev={() => setPage((p) => Math.max(0, p - 1))}
+              onNext={() => setPage((p) => p + 1)}
+            />
           )}
         </CardContent>
       </Card>
