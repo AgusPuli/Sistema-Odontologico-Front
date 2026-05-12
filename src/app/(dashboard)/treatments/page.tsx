@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
-import { Loader2, Sparkles, Stethoscope } from 'lucide-react'
+import Link from 'next/link'
+import { Loader2, PlusCircle, Sparkles, Stethoscope } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -41,10 +42,18 @@ export default function TreatmentsPage() {
         title="Catálogo de tratamientos"
         description="Procedimientos disponibles agrupados por especialidad"
         actions={
-          <Button onClick={() => seed.mutate()} disabled={seed.isPending} variant="outline">
-            {seed.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            Cargar catálogo por defecto
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => seed.mutate()} disabled={seed.isPending} variant="outline">
+              {seed.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Cargar catálogo por defecto
+            </Button>
+            <Button asChild>
+              <Link href="/treatments/new">
+                <PlusCircle className="h-4 w-4" />
+                Crear tratamiento
+              </Link>
+            </Button>
+          </div>
         }
       />
 

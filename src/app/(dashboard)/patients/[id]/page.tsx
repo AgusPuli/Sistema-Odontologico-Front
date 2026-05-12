@@ -1,7 +1,7 @@
 'use client'
 import { use, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Stethoscope, Trash2 } from 'lucide-react'
+import { ArrowLeft, PlusCircle, Stethoscope, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -39,11 +39,18 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             <ArrowLeft className="h-4 w-4" /> Volver
           </Link>
         </Button>
-        <Button asChild>
-          <Link href={`/odontograms/${patient.id}`}>
-            <Stethoscope className="h-4 w-4" /> Ver odontograma
-          </Link>
-        </Button>
+        <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link href={`/odontograms/${patient.id}`}>
+              <Stethoscope className="h-4 w-4" /> Ver odontograma
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/treatments/new?patientId=${patient.id}`}>
+              <PlusCircle className="h-4 w-4" /> Crear tratamiento
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <Card>
