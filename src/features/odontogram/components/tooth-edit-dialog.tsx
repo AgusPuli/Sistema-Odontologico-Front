@@ -39,17 +39,33 @@ interface Props {
 }
 
 const CONDITIONS: ToothCondition[] = [
+  // Restorative / surgical
   'HEALTHY',
   'CARIES',
-  'EXTRACTED',
   'RESTORATION',
   'ENDODONTICS',
-  'IMPLANT',
   'CROWN',
+  'EXTRACTED',
   'MISSING',
+  'IMPLANT',
   'PROSTHESIS',
   'FRACTURE',
   'SEALANT',
+  // Periodontal
+  'GINGIVITIS',
+  'CALCULUS',
+  'GINGIVAL_RECESSION',
+  'ABSCESS',
+  // Anomalies / positioning
+  'ROTATION',
+  'MALPOSITION',
+  'DIASTEMA',
+  'FUSION',
+  'GEMINATION',
+  'IMPACTED',
+  // Function / wear
+  'MOBILITY',
+  'BRUXISM',
   'OBSERVATION',
 ]
 

@@ -21,6 +21,7 @@ export const DENTAL_SPECIALTY_LABEL: Record<DentalSpecialty, string> = {
 export const DENTAL_SPECIALTIES = Object.keys(DENTAL_SPECIALTY_LABEL) as DentalSpecialty[]
 
 export const TOOTH_CONDITION_LABEL: Record<string, string> = {
+  // Restorative / surgical
   HEALTHY: 'Sano',
   CARIES: 'Caries',
   EXTRACTED: 'Extraído',
@@ -33,6 +34,21 @@ export const TOOTH_CONDITION_LABEL: Record<string, string> = {
   FRACTURE: 'Fractura',
   SEALANT: 'Sellante',
   OBSERVATION: 'Observación',
+  // Periodontal
+  GINGIVITIS: 'Gingivitis',
+  CALCULUS: 'Cálculo / Sarro',
+  GINGIVAL_RECESSION: 'Recesión gingival',
+  ABSCESS: 'Absceso',
+  // Anomalies / positioning
+  FUSION: 'Fusión',
+  GEMINATION: 'Geminación',
+  ROTATION: 'Giroversión',
+  MALPOSITION: 'Malposición',
+  DIASTEMA: 'Diastema',
+  IMPACTED: 'Incluido / Retenido',
+  // Function / wear
+  MOBILITY: 'Movilidad',
+  BRUXISM: 'Bruxismo / Desgaste',
 }
 
 export const TREATMENT_STATUS_LABEL: Record<string, string> = {

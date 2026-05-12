@@ -9,6 +9,7 @@ import type { ToothCondition } from '../types/odontogram.types'
  * tailwind.config.ts under `theme.extend.colors.tooth`.
  */
 const CONDITION_CHIP: Record<ToothCondition, string> = {
+  // Restorative / surgical
   HEALTHY: 'bg-tooth-healthy text-emerald-900',
   CARIES: 'bg-tooth-caries text-white',
   EXTRACTED: 'bg-tooth-extracted text-white',
@@ -21,10 +22,30 @@ const CONDITION_CHIP: Record<ToothCondition, string> = {
   FRACTURE: 'bg-tooth-caries text-white',
   SEALANT: 'bg-tooth-restoration text-white',
   OBSERVATION: 'bg-tooth-observation text-zinc-900',
+  // Periodontal
+  GINGIVITIS: 'bg-tooth-gingivitis text-white',
+  CALCULUS: 'bg-tooth-calculus text-white',
+  GINGIVAL_RECESSION: 'bg-tooth-recession text-white',
+  ABSCESS: 'bg-tooth-abscess text-white',
+  // Anomalies / positioning
+  FUSION: 'bg-tooth-fusion text-white',
+  GEMINATION: 'bg-tooth-gemination text-white',
+  ROTATION: 'bg-tooth-rotation text-white',
+  MALPOSITION: 'bg-tooth-malposition text-zinc-900',
+  DIASTEMA: 'bg-tooth-diastema text-zinc-900',
+  IMPACTED: 'bg-tooth-impacted text-white',
+  // Function / wear
+  MOBILITY: 'bg-tooth-mobility text-white',
+  BRUXISM: 'bg-tooth-bruxism text-white',
 }
 
-/** Order matches what we want surfaced in the UI — most-used first. */
+/**
+ * Order shown in the palette. Grouped by category and ordered by clinical
+ * frequency — restorative/surgical first (most-used), then periodontal,
+ * anomalies, and finally function/wear.
+ */
 const ORDER: ToothCondition[] = [
+  // Most used first
   'HEALTHY',
   'CARIES',
   'RESTORATION',
@@ -36,6 +57,21 @@ const ORDER: ToothCondition[] = [
   'PROSTHESIS',
   'FRACTURE',
   'SEALANT',
+  // Periodontal
+  'GINGIVITIS',
+  'CALCULUS',
+  'GINGIVAL_RECESSION',
+  'ABSCESS',
+  // Positioning / anomalies
+  'ROTATION',
+  'MALPOSITION',
+  'DIASTEMA',
+  'FUSION',
+  'GEMINATION',
+  'IMPACTED',
+  // Function
+  'MOBILITY',
+  'BRUXISM',
   'OBSERVATION',
 ]
 

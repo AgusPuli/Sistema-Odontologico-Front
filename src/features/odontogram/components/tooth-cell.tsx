@@ -7,6 +7,7 @@ import type { ToothCondition, ToothRecord, ToothSurface } from '../types/odontog
  * under `theme.extend.colors.tooth`.
  */
 const CONDITION_COLOR: Record<ToothCondition, string> = {
+  // Restorative / surgical
   HEALTHY: 'fill-tooth-healthy',
   CARIES: 'fill-tooth-caries',
   EXTRACTED: 'fill-tooth-extracted',
@@ -19,6 +20,53 @@ const CONDITION_COLOR: Record<ToothCondition, string> = {
   FRACTURE: 'fill-tooth-caries',
   SEALANT: 'fill-tooth-restoration',
   OBSERVATION: 'fill-tooth-observation',
+  // Periodontal
+  GINGIVITIS: 'fill-tooth-gingivitis',
+  CALCULUS: 'fill-tooth-calculus',
+  GINGIVAL_RECESSION: 'fill-tooth-recession',
+  ABSCESS: 'fill-tooth-abscess',
+  // Anomalies / positioning
+  FUSION: 'fill-tooth-fusion',
+  GEMINATION: 'fill-tooth-gemination',
+  ROTATION: 'fill-tooth-rotation',
+  MALPOSITION: 'fill-tooth-malposition',
+  DIASTEMA: 'fill-tooth-diastema',
+  IMPACTED: 'fill-tooth-impacted',
+  // Function / wear
+  MOBILITY: 'fill-tooth-mobility',
+  BRUXISM: 'fill-tooth-bruxism',
+}
+
+/**
+ * Tiny symbol overlaid on top of the tooth when the condition has one.
+ * Mirrors the way reference dental software annotates findings:
+ *   G  = gingivitis
+ *   ↻  = giroversión (rotation)
+ *   ↔  = movilidad / malposición
+ *   ▼  = diente retenido / incluido
+ *   ≈  = bruxismo / desgaste
+ * Empty string = no overlay (the fill color alone is enough).
+ */
+const CONDITION_SYMBOL: Partial<Record<ToothCondition, string>> = {
+  GINGIVITIS: 'G',
+  CALCULUS: 'S', // sarro
+  GINGIVAL_RECESSION: '↓',
+  ABSCESS: 'A',
+  FUSION: 'F',
+  GEMINATION: '○',
+  ROTATION: '↻',
+  MALPOSITION: '↔',
+  DIASTEMA: '║',
+  IMPACTED: '▼',
+  MOBILITY: 'M',
+  BRUXISM: '≈',
+  ENDODONTICS: 'E',
+  IMPLANT: 'I',
+  CROWN: 'C',
+  EXTRACTED: '✕',
+  MISSING: '−',
+  FRACTURE: '/',
+  SEALANT: '✓',
 }
 
 const NEUTRAL = 'fill-white dark:fill-zinc-800'
@@ -63,6 +111,11 @@ export function ToothCell({ fdi, tooth, selected, onClick }: Props) {
   const center = tooth?.surfaces?.find((s) => s.surface === 'O' || s.surface === 'I')
   const centerColor = center ? CONDITION_COLOR[center.condition] : wholeColor
 
+  // Overlay glyph for the whole-tooth condition (e.g. "G" for gingivitis).
+  // Surface findings keep their color from the polygon; the symbol is only
+  // for diagnoses that are easier to read as a letter than as a color.
+  const symbol = tooth?.condition ? CONDITION_SYMBOL[tooth.condition] : undefined
+
   return (
     <button
       type="button"
@@ -105,6 +158,18 @@ export function ToothCell({ fdi, tooth, selected, onClick }: Props) {
           className={cn(centerColor, 'stroke-border')}
           strokeWidth={0.5}
         />
+        {/* Overlay glyph: e.g. "G" for gingivitis, "↻" for giroversión */}
+        {symbol && (
+          <text
+            x={30}
+            y={34}
+            textAnchor="middle"
+            className="pointer-events-none fill-zinc-900 dark:fill-white"
+            style={{ fontSize: 16, fontWeight: 700, fontFamily: 'system-ui, sans-serif' }}
+          >
+            {symbol}
+          </text>
+        )}
       </svg>
     </button>
   )

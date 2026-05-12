@@ -57,6 +57,21 @@ const config: Config = {
           crown: 'hsl(45 95% 55%)',
           missing: 'hsl(220 10% 70%)',
           observation: 'hsl(220 90% 60%)',
+          // Periodontal
+          gingivitis: 'hsl(340 80% 60%)',
+          calculus: 'hsl(40 50% 50%)',
+          recession: 'hsl(320 60% 55%)',
+          abscess: 'hsl(355 90% 45%)',
+          // Anomalies / positioning
+          fusion: 'hsl(180 60% 50%)',
+          gemination: 'hsl(190 75% 55%)',
+          rotation: 'hsl(25 95% 60%)',
+          malposition: 'hsl(30 70% 65%)',
+          diastema: 'hsl(210 80% 70%)',
+          impacted: 'hsl(260 60% 50%)',
+          // Function / wear
+          mobility: 'hsl(350 75% 65%)',
+          bruxism: 'hsl(30 30% 45%)',
         },
       },
       borderRadius: {

@@ -1,6 +1,7 @@
 export type Dentition = 'PERMANENT' | 'PRIMARY' | 'MIXED'
 
 export type ToothCondition =
+  // Restorative / surgical
   | 'HEALTHY'
   | 'CARIES'
   | 'EXTRACTED'
@@ -13,6 +14,21 @@ export type ToothCondition =
   | 'FRACTURE'
   | 'SEALANT'
   | 'OBSERVATION'
+  // Periodontal
+  | 'GINGIVITIS'
+  | 'CALCULUS'
+  | 'GINGIVAL_RECESSION'
+  | 'ABSCESS'
+  // Anomalies / positioning
+  | 'FUSION'
+  | 'GEMINATION'
+  | 'ROTATION'
+  | 'MALPOSITION'
+  | 'DIASTEMA'
+  | 'IMPACTED'
+  // Function / wear
+  | 'MOBILITY'
+  | 'BRUXISM'
 
 export type ToothSurface = 'M' | 'D' | 'V' | 'L' | 'O' | 'I'
 
