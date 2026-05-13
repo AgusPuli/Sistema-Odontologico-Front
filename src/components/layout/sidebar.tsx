@@ -7,6 +7,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  NotebookPen,
   Stethoscope,
   Users,
 } from 'lucide-react'
@@ -19,6 +20,7 @@ const NAV: Array<{ href: string; label: string; icon: React.ComponentType<{ clas
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/appointments', label: 'Turnos', icon: CalendarDays },
   { href: '/treatments', label: 'Tratamientos', icon: Stethoscope },
+  { href: '/clinical-sessions/new', label: 'Nueva sesión', icon: NotebookPen },
   { href: '/estimates', label: 'Presupuestos', icon: FileText },
   { href: '/profile', label: 'Mi cuenta', icon: ClipboardList },
 ]

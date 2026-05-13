@@ -5,6 +5,7 @@ import { ArrowLeft, PlusCircle, Stethoscope, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { InfoField } from '@/components/shared/info-field'
 import { LoadingState } from '@/components/shared/loading-state'
 import { ConfirmDialog } from '@/components/shared/confirm-dialog'
@@ -17,7 +18,18 @@ import {
   usePatient,
   useUpdatePatient,
 } from '@/features/patients/hooks/use-patients'
+import { MedicalHistoryForm } from '@/features/medical-history/components/medical-history-form'
+import { PatientSessionsList } from '@/features/clinical-sessions/components/patient-sessions-list'
 
+/**
+ * Patient detail page. Organized in tabs:
+ *  - Datos          → demographic info + edit form
+ *  - Historia clínica → anamnesis structured form
+ *  - Sesiones       → list of clinical sessions (with link to create / edit)
+ *
+ * The Odontograma and "Crear tratamiento" actions stay as primary CTA buttons
+ * in the header so they're one click away.
+ */
 export default function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const { data: patient, isLoading } = usePatient(id)
@@ -64,45 +76,61 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
             )}
           </div>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
+        <CardContent className="grid gap-3 sm:grid-cols-3">
           <InfoField label="DNI" value={patient.documentNumber} />
           <InfoField label="Edad" value={age !== null ? `${age} años` : null} />
           <InfoField label="Fecha nacimiento" value={formatDate(patient.birthDate)} />
           <InfoField label="Género" value={patient.gender ? GENDER_LABEL[patient.gender] : null} />
           <InfoField label="Teléfono" value={patient.phone} />
           <InfoField label="Email" value={patient.email} />
-          <InfoField label="Obra social" value={patient.healthInsurance} />
-          <InfoField label="N° afiliado" value={patient.insuranceNumber} />
-          <InfoField label="Dirección" value={patient.address} className="sm:col-span-2" />
-          <InfoField label="Antecedentes médicos" value={patient.medicalNotes} className="sm:col-span-2" />
-          <InfoField label="Alergias" value={patient.allergies} className="sm:col-span-2" />
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Editar datos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PatientForm
-            initialValues={patient}
-            isSubmitting={isUpdating}
-            submitLabel="Guardar cambios"
-            onSubmit={(values) => update(values)}
-          />
-          <div className="mt-4 flex justify-end gap-2">
-            {patient.active ? (
-              <Button variant="outline" onClick={() => setConfirmOpen(true)}>
-                <Trash2 className="h-4 w-4" /> Desactivar paciente
-              </Button>
-            ) : (
-              <Button variant="outline" onClick={() => activate(patient.id)}>
-                Reactivar paciente
-              </Button>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="details">
+        <TabsList>
+          <TabsTrigger value="details">Datos</TabsTrigger>
+          <TabsTrigger value="medical">Historia clínica</TabsTrigger>
+          <TabsTrigger value="sessions">Sesiones clínicas</TabsTrigger>
+        </TabsList>
+
+        {/* ----- Datos ----- */}
+        <TabsContent value="details">
+          <Card>
+            <CardHeader>
+              <CardTitle>Editar datos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PatientForm
+                initialValues={patient}
+                isSubmitting={isUpdating}
+                submitLabel="Guardar cambios"
+                onSubmit={(values) => update(values)}
+              />
+              <div className="mt-4 flex justify-end gap-2">
+                {patient.active ? (
+                  <Button variant="outline" onClick={() => setConfirmOpen(true)}>
+                    <Trash2 className="h-4 w-4" /> Desactivar paciente
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={() => activate(patient.id)}>
+                    Reactivar paciente
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ----- Historia clínica ----- */}
+        <TabsContent value="medical">
+          <MedicalHistoryForm patientId={patient.id} />
+        </TabsContent>
+
+        {/* ----- Sesiones ----- */}
+        <TabsContent value="sessions">
+          <PatientSessionsList patientId={patient.id} />
+        </TabsContent>
+      </Tabs>
 
       <ConfirmDialog
         open={confirmOpen}
