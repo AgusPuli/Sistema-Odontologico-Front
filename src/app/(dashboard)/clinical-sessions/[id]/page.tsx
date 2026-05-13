@@ -5,11 +5,13 @@ import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/shared/page-header'
 import { LoadingState } from '@/components/shared/loading-state'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ClinicalSessionForm } from '@/features/clinical-sessions/components/clinical-session-form'
 import {
   useClinicalSession,
   useUpdateClinicalSession,
 } from '@/features/clinical-sessions/hooks/use-clinical-session'
+import { AttachmentGallery } from '@/features/attachments/components/attachment-gallery'
 
 /**
  * /clinical-sessions/[id] — edit an existing clinical session.
@@ -40,41 +42,54 @@ export default function ClinicalSessionDetailPage({
         description={`Atendido por ${session.dentistFullName ?? '-'}`}
       />
 
-      <ClinicalSessionForm
-        patientId={session.patientId}
-        initial={{
-          sessionDate: session.sessionDate,
-          durationMinutes: session.durationMinutes ?? undefined,
-          bloodPressureSystolic: session.bloodPressureSystolic ?? undefined,
-          bloodPressureDiastolic: session.bloodPressureDiastolic ?? undefined,
-          heartRate: session.heartRate ?? undefined,
-          subjective: session.subjective ?? '',
-          objective: session.objective ?? '',
-          assessment: session.assessment ?? '',
-          plan: session.plan ?? '',
-          anesthesiaUsed: session.anesthesiaUsed,
-          anesthesiaType: session.anesthesiaType ?? '',
-          anesthesiaDoses: session.anesthesiaDoses ?? undefined,
-          materialsUsed: session.materialsUsed ?? '',
-          generalNotes: session.generalNotes ?? '',
-          nextAppointmentRecommendation: session.nextAppointmentRecommendation ?? '',
-          status: session.status,
-          procedures: session.procedures.map((p) => ({
-            treatmentId: p.treatmentId,
-            treatmentCode: p.treatmentCode,
-            treatmentName: p.treatmentName,
-            fdiNumber: p.fdiNumber,
-            notes: p.notes ?? '',
-          })),
-        }}
-        submitLabel="Guardar cambios"
-        isSubmitting={update.isPending}
-        onSubmit={(values) => {
-          // Strip patientId (immutable on update) before sending
-          const { patientId: _p, ...rest } = values
-          update.mutate(rest)
-        }}
-      />
+      <Tabs defaultValue="data">
+        <TabsList>
+          <TabsTrigger value="data">Datos clínicos</TabsTrigger>
+          <TabsTrigger value="files">Imágenes y archivos</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="data">
+          <ClinicalSessionForm
+            patientId={session.patientId}
+            initial={{
+              sessionDate: session.sessionDate,
+              durationMinutes: session.durationMinutes ?? undefined,
+              bloodPressureSystolic: session.bloodPressureSystolic ?? undefined,
+              bloodPressureDiastolic: session.bloodPressureDiastolic ?? undefined,
+              heartRate: session.heartRate ?? undefined,
+              subjective: session.subjective ?? '',
+              objective: session.objective ?? '',
+              assessment: session.assessment ?? '',
+              plan: session.plan ?? '',
+              anesthesiaUsed: session.anesthesiaUsed,
+              anesthesiaType: session.anesthesiaType ?? '',
+              anesthesiaDoses: session.anesthesiaDoses ?? undefined,
+              materialsUsed: session.materialsUsed ?? '',
+              generalNotes: session.generalNotes ?? '',
+              nextAppointmentRecommendation: session.nextAppointmentRecommendation ?? '',
+              status: session.status,
+              procedures: session.procedures.map((p) => ({
+                treatmentId: p.treatmentId,
+                treatmentCode: p.treatmentCode,
+                treatmentName: p.treatmentName,
+                fdiNumber: p.fdiNumber,
+                notes: p.notes ?? '',
+              })),
+            }}
+            submitLabel="Guardar cambios"
+            isSubmitting={update.isPending}
+            onSubmit={(values) => {
+              // Strip patientId (immutable on update) before sending
+              const { patientId: _p, ...rest } = values
+              update.mutate(rest)
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="files">
+          <AttachmentGallery ownerType="CLINICAL_SESSION" ownerId={session.id} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }
