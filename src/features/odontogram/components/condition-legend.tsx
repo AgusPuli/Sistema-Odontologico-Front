@@ -1,41 +1,42 @@
-import { TOOTH_CONDITION_LABEL } from '@/lib/constants'
 import { cn } from '@/lib/utils'
+import {
+  CATEGORY_LABEL,
+  CONDITIONS_BY_CATEGORY,
+  bgClassOf,
+  labelOf,
+  symbolOf,
+  type ConditionCategory,
+} from '../config/conditions'
 
-const ITEMS: Array<{ key: keyof typeof TOOTH_CONDITION_LABEL; cls: string }> = [
-  // Restorative / surgical
-  { key: 'HEALTHY', cls: 'bg-tooth-healthy' },
-  { key: 'CARIES', cls: 'bg-tooth-caries' },
-  { key: 'RESTORATION', cls: 'bg-tooth-restoration' },
-  { key: 'ENDODONTICS', cls: 'bg-tooth-endodontics' },
-  { key: 'CROWN', cls: 'bg-tooth-crown' },
-  { key: 'EXTRACTED', cls: 'bg-tooth-extracted' },
-  { key: 'MISSING', cls: 'bg-tooth-missing' },
-  { key: 'IMPLANT', cls: 'bg-tooth-implant' },
-  // Periodontal
-  { key: 'GINGIVITIS', cls: 'bg-tooth-gingivitis' },
-  { key: 'CALCULUS', cls: 'bg-tooth-calculus' },
-  { key: 'GINGIVAL_RECESSION', cls: 'bg-tooth-recession' },
-  { key: 'ABSCESS', cls: 'bg-tooth-abscess' },
-  // Anomalies / positioning
-  { key: 'ROTATION', cls: 'bg-tooth-rotation' },
-  { key: 'MALPOSITION', cls: 'bg-tooth-malposition' },
-  { key: 'DIASTEMA', cls: 'bg-tooth-diastema' },
-  { key: 'FUSION', cls: 'bg-tooth-fusion' },
-  { key: 'GEMINATION', cls: 'bg-tooth-gemination' },
-  { key: 'IMPACTED', cls: 'bg-tooth-impacted' },
-  // Function / wear
-  { key: 'MOBILITY', cls: 'bg-tooth-mobility' },
-  { key: 'BRUXISM', cls: 'bg-tooth-bruxism' },
-  { key: 'OBSERVATION', cls: 'bg-tooth-observation' },
-]
-
+/**
+ * Compact legend that lists every condition with its color chip and symbol,
+ * grouped by category. Sourced 100% from config/conditions.ts so adding a
+ * new finding shows it up automatically.
+ */
 export function ConditionLegend() {
+  const cats: ConditionCategory[] = ['restorative', 'periodontal', 'anomaly', 'function']
   return (
-    <div className="flex flex-wrap items-center gap-3 text-xs">
-      {ITEMS.map((item) => (
-        <div key={item.key} className="flex items-center gap-1.5">
-          <span className={cn('h-3 w-3 rounded border border-border', item.cls)} />
-          <span className="text-muted-foreground">{TOOTH_CONDITION_LABEL[item.key]}</span>
+    <div className="space-y-2 text-xs">
+      {cats.map((cat) => (
+        <div key={cat}>
+          <p className="mb-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+            {CATEGORY_LABEL[cat]}
+          </p>
+          <div className="flex flex-wrap items-center gap-3">
+            {CONDITIONS_BY_CATEGORY[cat].map((c) => (
+              <div key={c} className="flex items-center gap-1.5">
+                <span
+                  className={cn(
+                    'flex h-4 w-4 items-center justify-center rounded border border-border text-[10px] font-bold text-white',
+                    bgClassOf(c),
+                  )}
+                >
+                  {symbolOf(c)}
+                </span>
+                <span className="text-muted-foreground">{labelOf(c)}</span>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>

@@ -1,104 +1,82 @@
 'use client'
 import { cn } from '@/lib/utils'
-import { TOOTH_CONDITION_LABEL } from '@/lib/constants'
 import type { ToothCondition } from '../types/odontogram.types'
-
-/**
- * Color chip per condition — matches the tooth fill colors so the palette
- * doubles as a legend. Tailwind classes referenced here must exist in
- * tailwind.config.ts under `theme.extend.colors.tooth`.
- */
-const CONDITION_CHIP: Record<ToothCondition, string> = {
-  // Restorative / surgical
-  HEALTHY: 'bg-tooth-healthy text-emerald-900',
-  CARIES: 'bg-tooth-caries text-white',
-  EXTRACTED: 'bg-tooth-extracted text-white',
-  RESTORATION: 'bg-tooth-restoration text-white',
-  ENDODONTICS: 'bg-tooth-endodontics text-white',
-  IMPLANT: 'bg-tooth-implant text-white',
-  CROWN: 'bg-tooth-crown text-white',
-  MISSING: 'bg-tooth-missing text-white',
-  PROSTHESIS: 'bg-tooth-crown text-white',
-  FRACTURE: 'bg-tooth-caries text-white',
-  SEALANT: 'bg-tooth-restoration text-white',
-  OBSERVATION: 'bg-tooth-observation text-zinc-900',
-  // Periodontal
-  GINGIVITIS: 'bg-tooth-gingivitis text-white',
-  CALCULUS: 'bg-tooth-calculus text-white',
-  GINGIVAL_RECESSION: 'bg-tooth-recession text-white',
-  ABSCESS: 'bg-tooth-abscess text-white',
-  // Anomalies / positioning
-  FUSION: 'bg-tooth-fusion text-white',
-  GEMINATION: 'bg-tooth-gemination text-white',
-  ROTATION: 'bg-tooth-rotation text-white',
-  MALPOSITION: 'bg-tooth-malposition text-zinc-900',
-  DIASTEMA: 'bg-tooth-diastema text-zinc-900',
-  IMPACTED: 'bg-tooth-impacted text-white',
-  // Function / wear
-  MOBILITY: 'bg-tooth-mobility text-white',
-  BRUXISM: 'bg-tooth-bruxism text-white',
-}
-
-/**
- * Order shown in the palette. Grouped by category and ordered by clinical
- * frequency — restorative/surgical first (most-used), then periodontal,
- * anomalies, and finally function/wear.
- */
-const ORDER: ToothCondition[] = [
-  // Most used first
-  'HEALTHY',
-  'CARIES',
-  'RESTORATION',
-  'ENDODONTICS',
-  'CROWN',
-  'EXTRACTED',
-  'MISSING',
-  'IMPLANT',
-  'PROSTHESIS',
-  'FRACTURE',
-  'SEALANT',
-  // Periodontal
-  'GINGIVITIS',
-  'CALCULUS',
-  'GINGIVAL_RECESSION',
-  'ABSCESS',
-  // Positioning / anomalies
-  'ROTATION',
-  'MALPOSITION',
-  'DIASTEMA',
-  'FUSION',
-  'GEMINATION',
-  'IMPACTED',
-  // Function
-  'MOBILITY',
-  'BRUXISM',
-  'OBSERVATION',
-]
+import {
+  CONDITION_META,
+  CONDITION_ORDER,
+  bgClassOf,
+  labelOf,
+  needsDarkTextOn,
+} from '../config/conditions'
 
 interface Props {
   active: ToothCondition
   onChange: (c: ToothCondition) => void
+  /** When true, render the palette grouped by category. Default: flat list. */
+  grouped?: boolean
 }
 
-export function FindingPalette({ active, onChange }: Props) {
+/**
+ * Renders one button per `ToothCondition`, sourced from config/conditions.ts.
+ * Adding/removing a finding or re-ordering the palette happens in that file —
+ * this component does not enumerate conditions itself.
+ */
+export function FindingPalette({ active, onChange, grouped = false }: Props) {
+  if (!grouped) {
+    return (
+      <div className="flex flex-wrap gap-2">
+        {CONDITION_ORDER.map((c) => (
+          <ConditionButton key={c} c={c} active={active === c} onClick={() => onChange(c)} />
+        ))}
+      </div>
+    )
+  }
+
+  // Grouped mode — useful when the palette grows large.
+  const groups: Record<string, ToothCondition[]> = {}
+  for (const c of CONDITION_ORDER) {
+    const cat = CONDITION_META[c].category
+    ;(groups[cat] ||= []).push(c)
+  }
   return (
-    <div className="flex flex-wrap gap-2">
-      {ORDER.map((c) => (
-        <button
-          key={c}
-          type="button"
-          onClick={() => onChange(c)}
-          className={cn(
-            'rounded-md px-3 py-1.5 text-xs font-medium shadow-sm transition-all',
-            CONDITION_CHIP[c],
-            active === c
-              ? 'ring-2 ring-offset-1 ring-primary scale-105'
-              : 'opacity-80 hover:opacity-100',
-          )}
-        >
-          {TOOTH_CONDITION_LABEL[c] ?? c}
-        </button>
+    <div className="space-y-2">
+      {Object.entries(groups).map(([cat, items]) => (
+        <div key={cat}>
+          <p className="mb-1 text-[11px] uppercase tracking-wide text-muted-foreground">{cat}</p>
+          <div className="flex flex-wrap gap-2">
+            {items.map((c) => (
+              <ConditionButton key={c} c={c} active={active === c} onClick={() => onChange(c)} />
+            ))}
+          </div>
+        </div>
       ))}
     </div>
+  )
+}
+
+function ConditionButton({
+  c,
+  active,
+  onClick,
+}: {
+  c: ToothCondition
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'rounded-md px-3 py-1.5 text-xs font-medium shadow-sm transition-all',
+        bgClassOf(c),
+        needsDarkTextOn(c) ? 'text-zinc-900' : 'text-white',
+        active
+          ? 'ring-2 ring-offset-1 ring-primary scale-105'
+          : 'opacity-80 hover:opacity-100',
+      )}
+    >
+      {labelOf(c)}
+    </button>
   )
 }

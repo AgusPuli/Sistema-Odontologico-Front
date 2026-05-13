@@ -18,7 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { TOOTH_CONDITION_LABEL, TREATMENT_STATUS_LABEL } from '@/lib/constants'
+import { TREATMENT_STATUS_LABEL } from '@/lib/constants'
+import { CONDITION_ORDER, labelOf } from '../config/conditions'
 import { formatDate } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -38,36 +39,8 @@ interface Props {
   tooth?: ToothRecord
 }
 
-const CONDITIONS: ToothCondition[] = [
-  // Restorative / surgical
-  'HEALTHY',
-  'CARIES',
-  'RESTORATION',
-  'ENDODONTICS',
-  'CROWN',
-  'EXTRACTED',
-  'MISSING',
-  'IMPLANT',
-  'PROSTHESIS',
-  'FRACTURE',
-  'SEALANT',
-  // Periodontal
-  'GINGIVITIS',
-  'CALCULUS',
-  'GINGIVAL_RECESSION',
-  'ABSCESS',
-  // Anomalies / positioning
-  'ROTATION',
-  'MALPOSITION',
-  'DIASTEMA',
-  'FUSION',
-  'GEMINATION',
-  'IMPACTED',
-  // Function / wear
-  'MOBILITY',
-  'BRUXISM',
-  'OBSERVATION',
-]
+// Sourced from config/conditions.ts so adding a finding doesn't require touching this file.
+const CONDITIONS: ToothCondition[] = CONDITION_ORDER
 
 const STATUSES: TreatmentStatus[] = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED']
 
@@ -132,7 +105,7 @@ export function ToothEditDialog({ open, onClose, odontogramId, fdi, tooth }: Pro
               <SelectContent>
                 {CONDITIONS.map((c) => (
                   <SelectItem key={c} value={c}>
-                    {TOOTH_CONDITION_LABEL[c]}
+                    {labelOf(c)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -190,7 +163,7 @@ export function ToothEditDialog({ open, onClose, odontogramId, fdi, tooth }: Pro
               <div key={h.id} className="rounded-md border p-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">
-                    {TOOTH_CONDITION_LABEL[h.finding] || h.finding}
+                    {labelOf(h.finding)}
                     {h.surface && <span className="ml-1 text-xs text-muted-foreground">({h.surface})</span>}
                   </span>
                   <Badge variant="outline">{TREATMENT_STATUS_LABEL[h.treatmentStatus]}</Badge>

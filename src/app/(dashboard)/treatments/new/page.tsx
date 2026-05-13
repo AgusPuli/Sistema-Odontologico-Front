@@ -29,7 +29,7 @@ import { FormField } from '@/components/shared/form-field'
 import { EmptyState } from '@/components/shared/empty-state'
 import { LoadingState } from '@/components/shared/loading-state'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
-import { TOOTH_CONDITION_LABEL } from '@/lib/constants'
+import { labelOf } from '@/features/odontogram/config/conditions'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { usePatientsList, usePatient } from '@/features/patients/hooks/use-patients'
 import {
@@ -429,7 +429,7 @@ export default function NewTreatmentPage() {
                       <TableCell className="font-mono">{f.fdiNumber}</TableCell>
                       <TableCell>
                         <Badge variant="outline">
-                          {TOOTH_CONDITION_LABEL[f.condition] ?? f.condition}
+                          {labelOf(f.condition)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground">

@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { TOOTH_CONDITION_LABEL, TREATMENT_STATUS_LABEL } from '@/lib/constants'
+import { TREATMENT_STATUS_LABEL } from '@/lib/constants'
+import { labelOf } from '../config/conditions'
 import { formatDate } from '@/lib/utils'
 import { useTreatmentPlan } from '../hooks/use-odontogram'
 import type { TreatmentStatus } from '../types/odontogram.types'
@@ -69,7 +70,7 @@ export function TreatmentPlanTable({ odontogramId }: { odontogramId: string }) {
               <TableRow key={entry.id}>
                 <TableCell className="font-mono">{entry.fdiNumber}</TableCell>
                 <TableCell>
-                  {TOOTH_CONDITION_LABEL[entry.finding] || entry.finding}
+                  {labelOf(entry.finding)}
                   {entry.surface && (
                     <span className="ml-1 text-xs text-muted-foreground">({entry.surface})</span>
                   )}
