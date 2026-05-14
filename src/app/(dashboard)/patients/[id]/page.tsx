@@ -21,6 +21,7 @@ import {
 import { MedicalHistoryForm } from '@/features/medical-history/components/medical-history-form'
 import { PatientSessionsList } from '@/features/clinical-sessions/components/patient-sessions-list'
 import { AttachmentGallery } from '@/features/attachments/components/attachment-gallery'
+import { PeriodontogramChart } from '@/features/periodontogram/components/periodontogram-chart'
 
 /**
  * Patient detail page. Organized in tabs:
@@ -93,6 +94,7 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
           <TabsTrigger value="medical">Historia clínica</TabsTrigger>
           <TabsTrigger value="sessions">Sesiones clínicas</TabsTrigger>
           <TabsTrigger value="files">Imágenes y archivos</TabsTrigger>
+          <TabsTrigger value="periodontogram">Periodontograma</TabsTrigger>
         </TabsList>
 
         {/* ----- Datos ----- */}
@@ -136,6 +138,11 @@ export default function PatientDetailPage({ params }: { params: Promise<{ id: st
         {/* ----- Imágenes / archivos ----- */}
         <TabsContent value="files">
           <AttachmentGallery ownerType="PATIENT" ownerId={patient.id} />
+        </TabsContent>
+
+        {/* ----- Periodontograma ----- */}
+        <TabsContent value="periodontogram">
+          <PeriodontogramChart patientId={patient.id} />
         </TabsContent>
       </Tabs>
 
